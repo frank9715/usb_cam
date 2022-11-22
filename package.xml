@@ -1,5 +1,5 @@
 <package>
-  <name>usb_cam</name>
+  <name>spg_cam</name>
   <version>0.3.6</version>
   <description>A ROS Driver for V4L USB Cameras</description>
 
@@ -9,10 +9,6 @@
   <author email="benjamin.pitzer@bosch.com">Benjamin Pitzer</author>
 
   <license>BSD</license>
-
-  <url type="website">http://wiki.ros.org/usb_cam</url>
-  <url type="bugtracker">https://github.com/ros-drivers/usb_cam/issues</url>
-  <url type="repository">https://github.com/ros-drivers/usb_cam</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 

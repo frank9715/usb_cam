@@ -1,0 +1,19 @@
+<launch>
+  <node name="spg_cam" pkg="spg_cam" type="spg_cam_node" output="screen" >
+    <param name="video_device" value="/dev/video0" />
+    <param name="image_width" value="4000" />
+    <param name="image_height" value="3000" />
+
+    <!-- <param name="image_width" value="3264" />
+    <param name="image_height" value="2448" /> -->
+    <param name="pixel_format" value="mjpeg" />
+    <!-- <param name="color_format" value="yuv420p" /> -->
+    <param name="camera_frame_id" value="spg_cam" />
+    <param name="camera_name" value="spg_cam" />
+    <param name="io_method" value="mmap"/>
+  </node>
+  <!-- <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+    <remap from="image" to="/usb_cam/image_raw"/>
+    <param name="autosize" value="true" />
+  </node> -->
+</launch>

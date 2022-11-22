@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12)
-project(usb_cam)
+project(spg_cam)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -39,8 +39,8 @@ include_directories(include
   ${OpenCV_INCLUDE_DIRS}
 )
 
-## Build the USB camera library
-add_library(${PROJECT_NAME} src/usb_cam.cpp)
+## Build the SPG camera library
+add_library(${PROJECT_NAME} src/spg_cam.cpp)
 target_link_libraries(${PROJECT_NAME}
   ${avcodec_LINK_LIBRARIES}
   ${avutil_LINK_LIBRARIES}
@@ -50,7 +50,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 ## Declare a cpp executable
-add_executable(${PROJECT_NAME}_node nodes/usb_cam_node.cpp)
+add_executable(${PROJECT_NAME}_node nodes/spg_cam_node.cpp)
 target_link_libraries(${PROJECT_NAME}_node
   ${PROJECT_NAME}
   ${avcodec_LINK_LIBRARIES}

@@ -33,8 +33,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *
  *********************************************************************/
-#ifndef USB_CAM_USB_CAM_H
-#define USB_CAM_USB_CAM_H
+#ifndef SPG_CAM_SPG_CAM_H
+#define SPG_CAM_SPG_CAM_H
 
 #include <asm/types.h>          /* for videodev2.h */
 
@@ -58,9 +58,9 @@ extern "C"
 
 #include <sensor_msgs/Image.h>
 
-namespace usb_cam {
+namespace spg_cam {
 
-class UsbCam {
+class SpgCam {
  public:
   typedef enum
   {
@@ -77,8 +77,8 @@ class UsbCam {
     COLOR_FORMAT_YUV420P, COLOR_FORMAT_YUV422P, COLOR_FORMAT_UNKNOWN,
   } color_format;
 
-  UsbCam();
-  ~UsbCam();
+  SpgCam();
+  ~SpgCam();
 
   // start camera
   void start(const std::string& dev, io_method io, pixel_format pf, color_format cf,

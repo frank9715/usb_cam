@@ -35,15 +35,15 @@
 *********************************************************************/
 
 #include <ros/ros.h>
-#include <usb_cam/usb_cam.h>
+#include <spg_cam/spg_cam.h>
 #include <image_transport/image_transport.h>
 #include <camera_info_manager/camera_info_manager.h>
 #include <sstream>
 #include <std_srvs/Empty.h>
 
-namespace usb_cam {
+namespace spg_cam {
 
-class UsbCamNode
+class SpgCamNode
 {
 public:
   // private ROS node handle
@@ -62,7 +62,7 @@ public:
   bool autofocus_, autoexposure_, auto_white_balance_;
   boost::shared_ptr<camera_info_manager::CameraInfoManager> cinfo_;
 
-  UsbCam cam_;
+  SpgCam cam_;
 
   ros::ServiceServer service_start_, service_stop_;
 
@@ -81,7 +81,7 @@ public:
     return true;
   }
 
-  UsbCamNode() :
+  SpgCamNode() :
       node_("~")
   {
     // advertise the main image topic
@@ -121,8 +121,8 @@ public:
     cinfo_.reset(new camera_info_manager::CameraInfoManager(node_, camera_name_, camera_info_url_));
 
     // create Services
-    service_start_ = node_.advertiseService("start_capture", &UsbCamNode::service_start_cap, this);
-    service_stop_ = node_.advertiseService("stop_capture", &UsbCamNode::service_stop_cap, this);
+    service_start_ = node_.advertiseService("start_capture", &SpgCamNode::service_start_cap, this);
+    service_stop_ = node_.advertiseService("stop_capture", &SpgCamNode::service_stop_cap, this);
 
     // check for default camera info
     if (!cinfo_->isCalibrated())
@@ -140,8 +140,8 @@ public:
         image_width_, image_height_, io_method_name_.c_str(), pixel_format_name_.c_str(), framerate_);
 
     // set the IO method
-    UsbCam::io_method io_method = UsbCam::io_method_from_string(io_method_name_);
-    if(io_method == UsbCam::IO_METHOD_UNKNOWN)
+    SpgCam::io_method io_method = SpgCam::io_method_from_string(io_method_name_);
+    if(io_method == SpgCam::IO_METHOD_UNKNOWN)
     {
       ROS_FATAL("Unknown IO method '%s'", io_method_name_.c_str());
       node_.shutdown();
@@ -149,8 +149,8 @@ public:
     }
 
     // set the pixel format
-    UsbCam::pixel_format pixel_format = UsbCam::pixel_format_from_string(pixel_format_name_);
-    if (pixel_format == UsbCam::PIXEL_FORMAT_UNKNOWN)
+    SpgCam::pixel_format pixel_format = SpgCam::pixel_format_from_string(pixel_format_name_);
+    if (pixel_format == SpgCam::PIXEL_FORMAT_UNKNOWN)
     {
       ROS_FATAL("Unknown pixel format '%s'", pixel_format_name_.c_str());
       node_.shutdown();
@@ -158,8 +158,8 @@ public:
     }
 
     // set the color format
-    UsbCam::color_format color_format = UsbCam::color_format_from_string(color_format_name_);
-    if (color_format == UsbCam::COLOR_FORMAT_UNKNOWN)
+    SpgCam::color_format color_format = SpgCam::color_format_from_string(color_format_name_);
+    if (color_format == SpgCam::COLOR_FORMAT_UNKNOWN)
     {
       ROS_FATAL("Unknown color format '%s'", color_format_name_.c_str());
       node_.shutdown();
@@ -171,68 +171,68 @@ public:
 		     image_height_, framerate_);
 
     // set camera parameters
-    if (brightness_ >= 0)
-    {
-      cam_.set_v4l_parameter("brightness", brightness_);
-    }
+    // if (brightness_ >= 0)
+    // {
+    //   cam_.set_v4l_parameter("brightness", brightness_);
+    // }
 
-    if (contrast_ >= 0)
-    {
-      cam_.set_v4l_parameter("contrast", contrast_);
-    }
+    // if (contrast_ >= 0)
+    // {
+    //   cam_.set_v4l_parameter("contrast", contrast_);
+    // }
 
-    if (saturation_ >= 0)
-    {
-      cam_.set_v4l_parameter("saturation", saturation_);
-    }
+    // if (saturation_ >= 0)
+    // {
+    //   cam_.set_v4l_parameter("saturation", saturation_);
+    // }
 
-    if (sharpness_ >= 0)
-    {
-      cam_.set_v4l_parameter("sharpness", sharpness_);
-    }
+    // if (sharpness_ >= 0)
+    // {
+    //   cam_.set_v4l_parameter("sharpness", sharpness_);
+    // }
 
-    if (gain_ >= 0)
-    {
-      cam_.set_v4l_parameter("gain", gain_);
-    }
+    // if (gain_ >= 0)
+    // {
+    //   cam_.set_v4l_parameter("gain", gain_);
+    // }
 
-    // check auto white balance
-    if (auto_white_balance_)
-    {
-      cam_.set_v4l_parameter("white_balance_temperature_auto", 1);
-    }
-    else
-    {
-      cam_.set_v4l_parameter("white_balance_temperature_auto", 0);
-      cam_.set_v4l_parameter("white_balance_temperature", white_balance_);
-    }
+    // // check auto white balance
+    // if (auto_white_balance_)
+    // {
+    //   cam_.set_v4l_parameter("white_balance_temperature_auto", 1);
+    // }
+    // else
+    // {
+    //   cam_.set_v4l_parameter("white_balance_temperature_auto", 0);
+    //   cam_.set_v4l_parameter("white_balance_temperature", white_balance_);
+    // }
 
     // check auto exposure
-    if (!autoexposure_)
-    {
-      // turn down exposure control (from max of 3)
-      cam_.set_v4l_parameter("exposure_auto", 1);
-      // change the exposure level
-      cam_.set_v4l_parameter("exposure_absolute", exposure_);
-    }
+    // if (!autoexposure_)
+    // {
+    //   // turn down exposure control (from max of 3)
+    //   cam_.set_v4l_parameter("exposure_auto", 1);
+    //   // change the exposure level
+    //   cam_.set_v4l_parameter("exposure_absolute", exposure_);
+    // }
 
     // check auto focus
-    if (autofocus_)
-    {
-      cam_.set_auto_focus(1);
-      cam_.set_v4l_parameter("focus_auto", 1);
-    }
-    else
-    {
-      cam_.set_v4l_parameter("focus_auto", 0);
-      if (focus_ >= 0)
-      {
-        cam_.set_v4l_parameter("focus_absolute", focus_);
-      }
-    }
+    // if (autofocus_)
+    // {
+    //   cam_.set_auto_focus(1);
+    //   cam_.set_v4l_parameter("focus_auto", 1);
+    // }
+    // else
+    // {
+    //   cam_.set_v4l_parameter("focus_auto", 0);
+    //   if (focus_ >= 0)
+    //   {
+    //     cam_.set_v4l_parameter("focus_absolute", focus_);
+    //   }
+    // }
   }
 
-  virtual ~UsbCamNode()
+  virtual ~SpgCamNode()
   {
     cam_.shutdown();
   }
@@ -259,7 +259,7 @@ public:
     while (node_.ok())
     {
       if (cam_.is_capturing()) {
-        if (!take_and_send_image()) ROS_WARN("USB camera did not respond in time.");
+        if (!take_and_send_image()) ROS_WARN("SPG camera did not respond in time.");
       }
       ros::spinOnce();
       loop_rate.sleep();
@@ -279,8 +279,8 @@ public:
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "usb_cam");
-  usb_cam::UsbCamNode a;
+  ros::init(argc, argv, "spg_cam");
+  spg_cam::SpgCamNode a;
   a.spin();
   return EXIT_SUCCESS;
 }

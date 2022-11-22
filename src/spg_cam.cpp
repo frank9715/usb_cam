@@ -53,11 +53,11 @@
 #include <sensor_msgs/fill_image.h>
 #include <opencv2/opencv.hpp>
 
-#include <usb_cam/usb_cam.h>
+#include <spg_cam/spg_cam.h>
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
-namespace usb_cam {
+namespace spg_cam {
 
 static void errno_exit(const char * s)
 {
@@ -376,19 +376,19 @@ std::string fcc2s(unsigned int val)
 	return s;
 }
 
-UsbCam::UsbCam()
+SpgCam::SpgCam()
   : io_(IO_METHOD_MMAP), fd_(-1), buffers_(NULL), n_buffers_(0), avframe_camera_(NULL),
     avframe_rgb_(NULL), avcodec_(NULL), avoptions_(NULL), avcodec_context_(NULL),
     avframe_camera_size_(0), avframe_rgb_size_(0), video_sws_(NULL), image_(NULL), is_capturing_(false) {
 }
-UsbCam::~UsbCam()
+SpgCam::~SpgCam()
 {
   av_parser_close(avparser_context_);
   avcodec_free_context(&avcodec_context_);
   shutdown();
 }
 
-int UsbCam::init_decoder(int image_width, int image_height,
+int SpgCam::init_decoder(int image_width, int image_height,
     color_format color_format, AVCodecID codec_id, const char *codec_name)
 {
   #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 9, 100)
@@ -475,17 +475,17 @@ int UsbCam::init_decoder(int image_width, int image_height,
   return 1;
 }
 
-int UsbCam::init_mjpeg_decoder(int image_width, int image_height, color_format color_format)
+int SpgCam::init_mjpeg_decoder(int image_width, int image_height, color_format color_format)
 {
   return init_decoder(image_width, image_height, color_format, AV_CODEC_ID_MJPEG, "MJPEG");
 }
 
-int UsbCam::init_h264_decoder(int image_width, int image_height, color_format color_format)
+int SpgCam::init_h264_decoder(int image_width, int image_height, color_format color_format)
 {
   return init_decoder(image_width, image_height, color_format, AV_CODEC_ID_H264, "H264");
 }
 
-void UsbCam::mjpeg2rgb(char *MJPEG, int len, char *RGB, int NumPixels)
+void SpgCam::mjpeg2rgb(char *MJPEG, int len, char *RGB, int NumPixels)
 {
   int got_picture;
 
@@ -571,7 +571,7 @@ void UsbCam::mjpeg2rgb(char *MJPEG, int len, char *RGB, int NumPixels)
 
 
 
-void UsbCam::process_image(const void * src, int len, camera_image_t *dest)
+void SpgCam::process_image(const void * src, int len, camera_image_t *dest)
 {
   if (pixelformat_ == V4L2_PIX_FMT_YUYV)
   {
@@ -600,7 +600,7 @@ void UsbCam::process_image(const void * src, int len, camera_image_t *dest)
     dest->image = (char*)src;
 }
 
-int UsbCam::read_frame()
+int SpgCam::read_frame()
 {
   struct v4l2_buffer buf;
   unsigned int i;
@@ -703,11 +703,11 @@ int UsbCam::read_frame()
   return 1;
 }
 
-bool UsbCam::is_capturing() {
+bool SpgCam::is_capturing() {
   return is_capturing_;
 }
 
-void UsbCam::stop_capturing(void)
+void SpgCam::stop_capturing(void)
 {
   if(!is_capturing_) return;
 
@@ -731,7 +731,7 @@ void UsbCam::stop_capturing(void)
   }
 }
 
-void UsbCam::start_capturing(void)
+void SpgCam::start_capturing(void)
 {
 
   if(is_capturing_) return;
@@ -794,7 +794,7 @@ void UsbCam::start_capturing(void)
   is_capturing_ = true;
 }
 
-void UsbCam::uninit_device(void)
+void SpgCam::uninit_device(void)
 {
   unsigned int i;
 
@@ -819,7 +819,7 @@ void UsbCam::uninit_device(void)
   free(buffers_);
 }
 
-void UsbCam::init_read(unsigned int buffer_size)
+void SpgCam::init_read(unsigned int buffer_size)
 {
   buffers_ = (buffer*)calloc(1, sizeof(*buffers_));
 
@@ -839,7 +839,7 @@ void UsbCam::init_read(unsigned int buffer_size)
   }
 }
 
-void UsbCam::init_mmap(void)
+void SpgCam::init_mmap(void)
 {
   struct v4l2_requestbuffers req;
 
@@ -899,7 +899,7 @@ void UsbCam::init_mmap(void)
   }
 }
 
-void UsbCam::init_userp(unsigned int buffer_size)
+void SpgCam::init_userp(unsigned int buffer_size)
 {
   struct v4l2_requestbuffers req;
   unsigned int page_size;
@@ -948,7 +948,7 @@ void UsbCam::init_userp(unsigned int buffer_size)
   }
 }
 
-void UsbCam::init_device(int image_width, int image_height, int framerate)
+void SpgCam::init_device(int image_width, int image_height, int framerate)
 {
   struct v4l2_capability cap;
   struct v4l2_cropcap cropcap;
@@ -1108,7 +1108,7 @@ void UsbCam::init_device(int image_width, int image_height, int framerate)
   }
 }
 
-void UsbCam::close_device(void)
+void SpgCam::close_device(void)
 {
   if (-1 == close(fd_))
     errno_exit("close");
@@ -1116,7 +1116,7 @@ void UsbCam::close_device(void)
   fd_ = -1;
 }
 
-void UsbCam::open_device(void)
+void SpgCam::open_device(void)
 {
   struct stat st;
 
@@ -1141,7 +1141,7 @@ void UsbCam::open_device(void)
   }
 }
 
-void UsbCam::start(const std::string& dev, io_method io_method,
+void SpgCam::start(const std::string& dev, io_method io_method,
 		   pixel_format pixel_format, color_format color_format,
        int image_width, int image_height,
 		   int framerate)
@@ -1209,7 +1209,7 @@ void UsbCam::start(const std::string& dev, io_method io_method,
   memset(image_->image, 0, image_->image_size * sizeof(char));
 }
 
-void UsbCam::shutdown(void)
+void SpgCam::shutdown(void)
 {
   stop_capturing();
   uninit_device();
@@ -1232,7 +1232,7 @@ void UsbCam::shutdown(void)
   image_ = NULL;
 }
 
-void UsbCam::grab_image(sensor_msgs::Image* msg)
+void SpgCam::grab_image(sensor_msgs::Image* msg)
 {
   // grab the image
   grab_image();
@@ -1256,7 +1256,7 @@ void UsbCam::grab_image(sensor_msgs::Image* msg)
   }
 }
 
-void UsbCam::grab_image()
+void SpgCam::grab_image()
 {
   fd_set fds;
   struct timeval tv;
@@ -1290,7 +1290,7 @@ void UsbCam::grab_image()
 }
 
 // enables/disables auto focus
-void UsbCam::set_auto_focus(int value)
+void SpgCam::set_auto_focus(int value)
 {
   struct v4l2_queryctrl queryctrl;
   struct v4l2_ext_control control;
@@ -1336,7 +1336,7 @@ void UsbCam::set_auto_focus(int value)
 * @param param The name of the parameter to set
 * @param param The value to assign
 */
-void UsbCam::set_v4l_parameter(const std::string& param, int value)
+void SpgCam::set_v4l_parameter(const std::string& param, int value)
 {
   set_v4l_parameter(param, boost::lexical_cast<std::string>(value));
 }
@@ -1346,7 +1346,7 @@ void UsbCam::set_v4l_parameter(const std::string& param, int value)
 * @param param The name of the parameter to set
 * @param param The value to assign
 */
-void UsbCam::set_v4l_parameter(const std::string& param, const std::string& value)
+void SpgCam::set_v4l_parameter(const std::string& param, const std::string& value)
 {
   // build the command
   std::stringstream ss;
@@ -1369,10 +1369,10 @@ void UsbCam::set_v4l_parameter(const std::string& param, const std::string& valu
       ROS_WARN("%s", output.c_str());
   }
   else
-    ROS_WARN("usb_cam_node could not run '%s'", cmd.c_str());
+    ROS_WARN("spg_cam_node could not run '%s'", cmd.c_str());
 }
 
-UsbCam::io_method UsbCam::io_method_from_string(const std::string& str)
+SpgCam::io_method SpgCam::io_method_from_string(const std::string& str)
 {
   if (str == "mmap")
     return IO_METHOD_MMAP;
@@ -1384,7 +1384,7 @@ UsbCam::io_method UsbCam::io_method_from_string(const std::string& str)
     return IO_METHOD_UNKNOWN;
 }
 
-UsbCam::pixel_format UsbCam::pixel_format_from_string(const std::string& str)
+SpgCam::pixel_format SpgCam::pixel_format_from_string(const std::string& str)
 {
     if (str == "yuyv")
       return PIXEL_FORMAT_YUYV;
@@ -1408,7 +1408,7 @@ UsbCam::pixel_format UsbCam::pixel_format_from_string(const std::string& str)
       return PIXEL_FORMAT_UNKNOWN;
 }
 
-UsbCam::color_format UsbCam::color_format_from_string(const std::string& str)
+SpgCam::color_format SpgCam::color_format_from_string(const std::string& str)
 {
     if (str == "yuv420p")
       return COLOR_FORMAT_YUV420P;
